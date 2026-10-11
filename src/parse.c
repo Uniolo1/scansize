@@ -8,6 +8,7 @@
 
 #define _POSIX_C_SOURCE 200112L
 #include "h/parse.h"
+#include "h/colors.h"
 #include <dirent.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -61,7 +62,10 @@ int parse_from(const char *path, uintmax_t depth)
 
 		struct dirent *entry;
 
-		printf("%s/\n", path);
+		for (uintmax_t i = 0; i < depth; i++)
+			putchar(' ');
+		printf("" CYAN "%s" GRAY "/" RESET "\n", path);
+
 		while ((entry = readdir(dir)) != NULL)
 		{
 			if (strcmp(entry->d_name, ".") == 0 ||
@@ -87,7 +91,9 @@ int parse_from(const char *path, uintmax_t depth)
 		for (uintmax_t i = 0; i < depth; i++)
 			putchar(' ');
 
-		printf("%s: %jd bytes\n", path, get_size(st));
+		printf(BLUE "%s" RESET ": " MAGENTA "%jd" RESET " " GRAY
+		            "bytes" RESET "\n",
+		       path, get_size(st));
 		return 0;
 	}
 
