@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: NONE
+# SPDX-License-Identifier: Unlicense
+
+version = 1
+
+[[annotations]]
+path = ["UNLICENSE"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "NONE"
+SPDX-License-Identifier = "Unlicense"
