@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: NONE
 // SPDX-License-Identifier: Unlicense
 
-#include <string.h>
 #if !defined(RUNNING_ON_POSIX) && !defined(__unix__) && !defined(__APPLE__)
 #error                                                                         \
     "This software is intended for POSIX Systems, compile with 'RUNNING_ON_POSIX' to override this check!"
@@ -11,22 +10,44 @@
 #include <dirent.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 
-intmax_t get_size(struct stat st)
+static inline intmax_t get_size(struct stat st)
 {
 	return st.st_size;
 }
 
+static inline char *pathjoin(const char *parent, const char *child)
+{
+	size_t plen = strlen(parent);
+	size_t clen = strlen(child);
+
+	int need_slash = plen > 0 && parent[plen - 1] != '/';
+
+	char *out = malloc(plen + (size_t)need_slash + clen + 1);
+	if (out == NULL)
+		return NULL;
+
+	memcpy(out, parent, plen);
+
+	if (need_slash)
+		out[plen++] = '/';
+
+	memcpy(out + plen, child, clen + 1);
+
+	return out;
+}
+
 int parse_from(const char *path, uintmax_t depth)
 {
-	if (depth != 0)
-		if (strcmp(".", path) == 0 || strcmp("..", path) == 0)
-			return 0;
-
 	struct stat st;
-	if (stat(path, &st) != 0)
-		return -1; // failure
+	if (lstat(path, &st) != 0)
+	{
+		perror(path);
+		return -1;
+	}
 
 	if (S_ISDIR(st.st_mode))
 	{
@@ -42,7 +63,19 @@ int parse_from(const char *path, uintmax_t depth)
 		printf("%s/\n", path);
 		while ((entry = readdir(dir)) != NULL)
 		{
-			parse_from(entry->d_name, depth + 1);
+			if (strcmp(entry->d_name, ".") == 0 ||
+			    strcmp(entry->d_name, "..") == 0)
+				continue;
+
+			char *entry_full = pathjoin(path, entry->d_name);
+			if (entry_full == NULL)
+			{
+				perror("pathjoin");
+				return 3;
+			}
+
+			parse_from(entry_full, depth + 1);
+			free(entry_full);
 		}
 
 		closedir(dir);
@@ -55,9 +88,6 @@ int parse_from(const char *path, uintmax_t depth)
 
 		printf("%s: %jd bytes\n", path, get_size(st));
 		return 0;
-	}
-	else
-	{
 	}
 
 	return 2;
