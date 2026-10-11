@@ -32,5 +32,5 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	return parse_from(argv[1], 0);
+	return parse_from(argv[1], 0, true);
 }

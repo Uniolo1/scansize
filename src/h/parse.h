@@ -6,5 +6,5 @@
 
 extern bool no_colors;
 
-int parse_from(const char *path, uintmax_t depth);
+int parse_from(const char *path, uintmax_t depth, bool recursive);
 #endif

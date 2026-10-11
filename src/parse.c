@@ -73,7 +73,7 @@ static inline char *pathjoin(const char *parent, const char *child)
 	return out;
 }
 
-int parse_from(const char *path, uintmax_t depth)
+int parse_from(const char *path, uintmax_t depth, bool recursive)
 {
 	struct stat st;
 	if (lstat(path, &st) != 0)
@@ -84,6 +84,9 @@ int parse_from(const char *path, uintmax_t depth)
 
 	if (S_ISDIR(st.st_mode))
 	{
+		if (!recursive && depth != 0)
+			return 0;
+
 		DIR *dir = opendir(path);
 		if (dir == NULL)
 		{
@@ -114,7 +117,7 @@ int parse_from(const char *path, uintmax_t depth)
 				return 3;
 			}
 
-			parse_from(entry_full, depth + 1);
+			parse_from(entry_full, depth + 1, recursive);
 			free(entry_full);
 		}
 
