@@ -6,8 +6,10 @@ OUT := out
 
 .PHONY: all
 all:
+	mkdir -p out
 	$(CC) -O2 $(CFLAGS) -o $(OUT)/scansize $(SRC_DIR)/*.c
 
 .PHONY: debug
 debug:
+	mkdir -p out
 	$(CC) -O0 -g $(CFLAGS) -o $(OUT)/scansize $(SRC_DIR)/*.c

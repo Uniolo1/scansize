@@ -64,7 +64,9 @@ int parse_from(const char *path, uintmax_t depth)
 
 		for (uintmax_t i = 0; i < depth; i++)
 			putchar(' ');
-		printf("" CYAN "%s" GRAY "/" RESET "\n", path);
+		printf("" GREEN "%s" GRAY "/: " MAGENTA "%zu" GRAY
+		       " bytes" RESET "\n",
+		       path, get_size(st));
 
 		while ((entry = readdir(dir)) != NULL)
 		{
