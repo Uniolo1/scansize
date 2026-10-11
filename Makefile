@@ -12,4 +12,4 @@ all:
 .PHONY: debug
 debug:
 	mkdir -p out
-	$(CC) -O0 -g $(CFLAGS) -o $(OUT)/scansize $(SRC_DIR)/*.c
+	$(CC) -O0 -g $(CFLAGS) -o $(OUT)/scansize $(SRC_DIR)/*.c -fsanitize=address,undefined -fno-omit-frame-pointer
