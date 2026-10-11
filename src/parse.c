@@ -16,9 +16,16 @@
 #include <string.h>
 #include <sys/stat.h>
 
-static inline intmax_t get_size(struct stat st)
+struct file_size
 {
-	return st.st_size;
+	intmax_t number;
+	char postfix[4];
+};
+
+static inline struct file_size get_size(struct stat st)
+{
+	struct file_size ret = {.number = st.st_size, .postfix = "B"};
+	return ret;
 }
 
 static inline char *pathjoin(const char *parent, const char *child)
@@ -64,9 +71,11 @@ int parse_from(const char *path, uintmax_t depth)
 
 		for (uintmax_t i = 0; i < depth; i++)
 			putchar(' ');
-		printf("" GREEN "%s" GRAY "/: " MAGENTA "%zu" GRAY
-		       " bytes" RESET "\n",
-		       path, get_size(st));
+
+		struct file_size size = get_size(st);
+		printf("" GREEN "%s" GRAY "/: " MAGENTA "%zu" GRAY " %s" RESET
+		       "\n",
+		       path, size.number, size.postfix);
 
 		while ((entry = readdir(dir)) != NULL)
 		{
@@ -93,9 +102,10 @@ int parse_from(const char *path, uintmax_t depth)
 		for (uintmax_t i = 0; i < depth; i++)
 			putchar(' ');
 
+		struct file_size size = get_size(st);
 		printf(BLUE "%s" RESET ": " MAGENTA "%jd" RESET " " GRAY
-		            "bytes" RESET "\n",
-		       path, get_size(st));
+		            "%s" RESET "\n",
+		       path, size.number, size.postfix);
 		return 0;
 	}
 
