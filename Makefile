@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: NONE
+# SPDX-License-Identifier: Unlicense
+
 CC := cc
 CFLAGS := -Wall -Wextra
 
