@@ -34,8 +34,18 @@ int main(int argc, char *argv[])
 	}
 
 	if (argc > 2)
+	{
 		if (strcmp(argv[2], "-r") == 0 || strcmp(argv[2], "-R") == 0)
 			return parse_from(argv[1], 0, true);
+
+		// check to see if the user did "scansize -r <>" instead of
+		// "scansize <> -r"
+		else if (strcmp(argv[1], "-r") == 0 ||
+		         strcmp(argv[1], "-R") == 0)
+		{
+			return parse_from(argv[2], 0, true);
+		}
+	}
 
 	return parse_from(argv[1], 0, false);
 }
