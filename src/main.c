@@ -10,6 +10,7 @@
 #include "h/parse.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 static inline bool terminal_supports_color(void)
@@ -27,10 +28,14 @@ int main(int argc, char *argv[])
 
 	if (argc < 2)
 	{
-		fprintf(stderr, "  Usage: %s <file>\n", argv[0]);
-		fprintf(stderr, "  Usage: %s <directory>\n", argv[0]);
+		fprintf(stderr, "  Usage: %s <file>      [-r]\n", argv[0]);
+		fprintf(stderr, "  Usage: %s <directory> [-r]\n", argv[0]);
 		return 1;
 	}
 
-	return parse_from(argv[1], 0, true);
+	if (argc > 2)
+		if (strcmp(argv[2], "-r") == 0 || strcmp(argv[2], "-R") == 0)
+			return parse_from(argv[1], 0, true);
+
+	return parse_from(argv[1], 0, false);
 }
