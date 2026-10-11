@@ -72,10 +72,7 @@ int parse_from(const char *path, uintmax_t depth)
 		for (uintmax_t i = 0; i < depth; i++)
 			putchar(' ');
 
-		struct file_size size = get_size(st);
-		printf("" GREEN "%s" GRAY "/: " MAGENTA "%zu" GRAY " %s" RESET
-		       "\n",
-		       path, size.number, size.postfix);
+		printf("" GREEN "%s" GRAY "/" RESET "\n", path);
 
 		while ((entry = readdir(dir)) != NULL)
 		{
