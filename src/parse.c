@@ -10,11 +10,14 @@
 #include "h/parse.h"
 #include "h/colors.h"
 #include <dirent.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+
+bool no_colors = false;
 
 struct file_size
 {
@@ -24,7 +27,28 @@ struct file_size
 
 static inline struct file_size get_size(struct stat st)
 {
-	struct file_size ret = {.number = st.st_size, .postfix = "B"};
+	static const char *const suffixes[] = {"B",   "KiB", "MiB", "GiB",
+	                                       "TiB", "PiB", "EiB"};
+
+	struct file_size ret = {.number = (intmax_t)st.st_size, .postfix = "B"};
+
+	uintmax_t size = (uintmax_t)st.st_size;
+	unsigned int i = 0;
+
+	while (size >= 1024 && i < sizeof(suffixes) / sizeof(suffixes[0]) - 1)
+	{
+		size /= 1024;
+		++i;
+	}
+
+	ret.number = (intmax_t)size;
+
+	for (int j = 0; suffixes[i][j] != '\0'; ++j)
+	{
+		ret.postfix[j] = suffixes[i][j];
+	}
+	ret.postfix[sizeof(ret.postfix) - 1] = '\0';
+
 	return ret;
 }
 
@@ -72,7 +96,10 @@ int parse_from(const char *path, uintmax_t depth)
 		for (uintmax_t i = 0; i < depth; i++)
 			putchar(' ');
 
-		printf("" GREEN "%s" GRAY "/" RESET "\n", path);
+		if (no_colors)
+			printf("%s/\n", path);
+		else
+			printf("" GREEN "%s" GRAY "/" RESET "\n", path);
 
 		while ((entry = readdir(dir)) != NULL)
 		{
@@ -100,9 +127,16 @@ int parse_from(const char *path, uintmax_t depth)
 			putchar(' ');
 
 		struct file_size size = get_size(st);
-		printf(BLUE "%s" RESET ": " MAGENTA "%jd" RESET " " GRAY
-		            "%s" RESET "\n",
-		       path, size.number, size.postfix);
+
+		if (no_colors)
+			printf("%s: %jd %s\n", path, size.number, size.postfix);
+		else
+		{
+			printf(BLUE "%s" RESET ": " MAGENTA "%jd" RESET " " GRAY
+			            "%s" RESET "\n",
+			       path, size.number, size.postfix);
+		}
+
 		return 0;
 	}
 
