@@ -21,17 +21,21 @@ bool no_colors = false;
 
 struct file_size
 {
-	intmax_t number;
+	uintmax_t number;
 	char postfix[4];
 };
 
 static inline struct file_size get_size(struct stat st)
 {
+	// Possible suffixes
 	static const char *const suffixes[] = {"B",   "KiB", "MiB", "GiB",
 	                                       "TiB", "PiB", "EiB"};
 
-	struct file_size ret = {.number = (intmax_t)st.st_size, .postfix = "B"};
+	// create the return struct
+	struct file_size ret = {.number = (uintmax_t)st.st_size,
+	                        .postfix = "B"};
 
+	// Set the 'size' variable
 	uintmax_t size = (uintmax_t)st.st_size;
 	unsigned int i = 0;
 
@@ -41,7 +45,7 @@ static inline struct file_size get_size(struct stat st)
 		++i;
 	}
 
-	ret.number = (intmax_t)size;
+	ret.number = (uintmax_t)size;
 
 	for (int j = 0; suffixes[i][j] != '\0'; ++j)
 	{
@@ -54,11 +58,14 @@ static inline struct file_size get_size(struct stat st)
 
 static inline char *pathjoin(const char *parent, const char *child)
 {
+	// get the length of the strings
 	size_t plen = strlen(parent);
 	size_t clen = strlen(child);
 
+	// check if the parent already has a '/' at the end
 	int need_slash = plen > 0 && parent[plen - 1] != '/';
 
+	// allocate the string
 	char *out = malloc(plen + (size_t)need_slash + clen + 1);
 	if (out == NULL)
 		return NULL;
@@ -75,6 +82,7 @@ static inline char *pathjoin(const char *parent, const char *child)
 
 int parse_from(const char *path, uintmax_t depth, bool recursive)
 {
+	// get the stat's of the file
 	struct stat st;
 	if (lstat(path, &st) != 0)
 	{
@@ -82,8 +90,10 @@ int parse_from(const char *path, uintmax_t depth, bool recursive)
 		return -1;
 	}
 
+	// if it is a directory
 	if (S_ISDIR(st.st_mode))
 	{
+		// if we are not in recursive mode, don't recurse
 		if (!recursive && depth != 0)
 			return 0;
 
@@ -106,10 +116,12 @@ int parse_from(const char *path, uintmax_t depth, bool recursive)
 
 		while ((entry = readdir(dir)) != NULL)
 		{
+			// don't search '.' or '..' for obvious reasons
 			if (strcmp(entry->d_name, ".") == 0 ||
 			    strcmp(entry->d_name, "..") == 0)
 				continue;
 
+			// combine the parent and child paths
 			char *entry_full = pathjoin(path, entry->d_name);
 			if (entry_full == NULL)
 			{
@@ -124,6 +136,8 @@ int parse_from(const char *path, uintmax_t depth, bool recursive)
 		closedir(dir);
 		return 0;
 	}
+
+	// if it is a file
 	else if (S_ISREG(st.st_mode))
 	{
 		for (uintmax_t i = 0; i < depth; i++)
@@ -135,6 +149,7 @@ int parse_from(const char *path, uintmax_t depth, bool recursive)
 			printf("%s: %jd %s\n", path, size.number, size.postfix);
 		else
 		{
+			// hard to read, but same as above but colored
 			printf(BLUE "%s" RESET ": " MAGENTA "%jd" RESET " " GRAY
 			            "%s" RESET "\n",
 			       path, size.number, size.postfix);

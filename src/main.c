@@ -13,6 +13,7 @@
 #include <string.h>
 #include <unistd.h>
 
+// This function currently only checks if the 'stdout' is a terminal or not
 static inline bool terminal_supports_color(void)
 {
 	if (!isatty(STDOUT_FILENO))
@@ -23,6 +24,7 @@ static inline bool terminal_supports_color(void)
 
 int main(int argc, char *argv[])
 {
+	// set no_colors flag appropriately
 	if (!terminal_supports_color())
 		no_colors = true;
 
@@ -35,6 +37,7 @@ int main(int argc, char *argv[])
 
 	if (argc > 2)
 	{
+		// check if argv[2] is '-r' or '-R'
 		if (strcmp(argv[2], "-r") == 0 || strcmp(argv[2], "-R") == 0)
 			return parse_from(argv[1], 0, true);
 
