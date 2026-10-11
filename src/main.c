@@ -30,6 +30,7 @@
 
 #define _POSIX_C_SOURCE 200112L
 #include "h/parse.h"
+#include "h/parse_glob.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>

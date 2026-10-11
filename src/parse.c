@@ -183,38 +183,3 @@ int parse_from(const char *path, uintmax_t depth, bool recursive)
 
 	return 2;
 }
-
-// wrapper to 'parse_from" that glob's input
-int parse_from_glob(const char *path, bool recursive)
-{
-	// glob the input
-	glob_t matches;
-	int ret = glob(path, 0, NULL, &matches);
-
-	if (ret == 0)
-	{
-		int result = 0;
-
-		for (size_t i = 0; i < matches.gl_pathc; ++i)
-		{
-			int r = parse_from(matches.gl_pathv[i], 0, recursive);
-			if (r != 0)
-				// we set the result to the last failed call
-				result = r;
-		}
-
-		globfree(&matches); // free memory allocated by glob
-		return result;
-	}
-
-	// handle errors
-	else if (ret == GLOB_NOMATCH)
-	{
-		return 1;
-	}
-	else
-	{
-		fprintf(stderr, "Failed to glob \"%s\"!\n", path);
-		return 2;
-	}
-}
