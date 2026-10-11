@@ -7,11 +7,16 @@
 #endif
 
 #include "h/parse.h"
+#include <stdio.h>
 
 int main(int argc, char *argv[])
 {
 	if (argc < 2)
+	{
+		fprintf(stderr, "  Usage: %s <file>\n", argv[0]);
+		fprintf(stderr, "  Usage: %s <directory>\n", argv[0]);
 		return 1;
+	}
 
 	return parse_from(argv[1], 0);
 }
