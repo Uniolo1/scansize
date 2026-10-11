@@ -32,6 +32,7 @@
 #include "h/parse.h"
 #include "h/colors.h"
 #include <dirent.h>
+#include <glob.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -181,4 +182,34 @@ int parse_from(const char *path, uintmax_t depth, bool recursive)
 	}
 
 	return 2;
+}
+
+// wrapper to 'parse_from" that glob's input
+int parse_from_glob(const char *path, bool recursive)
+{
+	glob_t matches;
+	int ret = glob(path, 0, NULL, &matches);
+
+	if (ret == 0)
+	{
+		int result = 0;
+		for (size_t i = 0; i < matches.gl_pathc; ++i)
+		{
+			int r = parse_from(matches.gl_pathv[i], 0, recursive);
+			if (r != 0)
+				result = r;
+		}
+
+		globfree(&matches);
+		return result;
+	}
+	else if (ret == GLOB_NOMATCH)
+	{
+		return 1;
+	}
+	else
+	{
+		fprintf(stderr, "Failed to glob \"%s\"!\n", path);
+		return 2;
+	}
 }

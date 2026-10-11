@@ -32,4 +32,5 @@
 extern bool no_colors;
 
 int parse_from(const char *path, uintmax_t depth, bool recursive);
+int parse_from_glob(const char *path, bool recursive);
 #endif
