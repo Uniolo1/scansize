@@ -1,14 +1,10 @@
 # SPDX-FileCopyrightText: NONE
 # SPDX-License-Identifier: Unlicense
 
+out
 .vscode
 
-# old output - kept for posterity
-out
-
-# Xmake cache
+# old build system - kept for posterity
 .xmake
-build
-
-# MacOS Cache
 .DS_Store
+build
