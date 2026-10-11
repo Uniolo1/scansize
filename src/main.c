@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: NONE
 // SPDX-License-Identifier: Unlicense
-#include <stdint.h>
-#include <stdio.h>
 
-#if defined(RUNNING_ON_POSIX) || defined(__unix__) || defined(__APPLE__)
-#define RUNNING_ON_POSIX
+#if !defined(RUNNING_ON_POSIX) && !defined(__unix__) && !defined(__APPLE__)
+#error                                                                         \
+    "This software is intended for POSIX Systems, compile with 'RUNNING_ON_POSIX' to override this check!"
 #endif
 
-#ifdef RUNNING_ON_POSIX
+#define _POSIX_C_SOURCE 200112L
+#include <stdint.h>
+#include <stdio.h>
 #include <sys/stat.h>
 
-// implementation for POSIX systems
 intmax_t get_size(const char *filename)
 {
 	struct stat st;
@@ -19,25 +19,6 @@ intmax_t get_size(const char *filename)
 
 	return st.st_size;
 }
-
-#else
-
-// implementation for non-POSIX systems
-intmax_t get_size(const char *filename)
-{
-	FILE *f = fopen(filename, "r");
-	if (f == NULL)
-		return -1;
-
-	if (fseek(f, 0, SEEK_END) == -1)
-		return -2;
-
-	intmax_t size = ftell(f);
-	fclose(f);
-
-	return size;
-}
-#endif
 
 int main(int argc, char *argv[])
 {
